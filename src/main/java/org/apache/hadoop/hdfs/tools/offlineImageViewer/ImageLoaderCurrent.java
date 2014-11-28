@@ -116,7 +116,7 @@ import java.util.Date;
 class ImageLoaderCurrent implements ImageLoader {
   protected final DateFormat dateFormat = 
                                       new SimpleDateFormat("yyyy-MM-dd HH:mm");
-  private static int [] versions = {-16, -17, -18, -19, -20, -21, -22, -23, -24};
+  private static int [] versions = {-16, -17, -18, -19, -20, -21, -22, -23, -24,-32};
   private int imageVersion = 0;
 
   /* (non-Javadoc)
