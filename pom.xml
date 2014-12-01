@@ -3,9 +3,9 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.renren.hadoop</groupId>
   <artifactId>hdfs-oiv</artifactId>
-  <version>0.21.0</version>
+  <version>1.0</version>
   <name>hdfs-oiv</name>
-  <description>hadoop  offline image viewer</description>
+  <description>hadoop  offline image viewer,support hadoop-1.x</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
