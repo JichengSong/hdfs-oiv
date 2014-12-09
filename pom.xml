@@ -99,7 +99,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>com.renren.storm.test.Test</mainClass>
+              <mainClass>com.renren.hadoop.oiv.tools.Driver</mainClass>
             </manifest>
           </archive>
         </configuration>
