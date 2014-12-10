@@ -26,7 +26,6 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -43,13 +42,14 @@ public class MoveData {
     // private Text word;
     private FileSystem fs;
     private String dataToDir;
+    BlackListManager blackListManager;
 
     protected void setup(Context context) throws IOException,
         InterruptedException {
-      // this.word = new Text(context.getInputSplit().toString());
       this.fs = FileSystem.get(context.getConfiguration());
       this.dataToDir = context.getConfiguration().get(DATA_TO_DIR,
           DEFAULT_DATA_OUTPUT_DIR);
+      this.blackListManager = new BlackListManager(context.getConfiguration());
       // NOTHING
     }
 
@@ -57,6 +57,10 @@ public class MoveData {
         throws IOException, InterruptedException {
       // filter illegal file
       if (value.toString().equals("")) {
+        return;
+      }
+      // filter files that in blackList
+      if (this.blackListManager.isInBlackList(value.toString())) {
         return;
       }
       // move it
@@ -84,13 +88,22 @@ public class MoveData {
     Configuration conf = new Configuration();
     String[] otherArgs = new GenericOptionsParser(conf, args)
         .getRemainingArgs();
-    if (otherArgs.length != 3) {
-      System.err.println("Usage: MoveData <data_from_dir> <data_to_dir> <job_out_dir>");
+    if (otherArgs.length != 3 && otherArgs.length != 4) {
+      System.err
+          .println("Usage: MoveData <data_from_dir> <data_to_dir> <job_out_dir> [<black_list_file>]");
       System.exit(2);
     }
+    String blackListFile = null;
+    if (otherArgs.length == 4) {
+      blackListFile = otherArgs[3];
+    } else {
+      System.err.println("Warn: black_list_file param is not given");
+    }
+
     String dataFromDir = otherArgs[0];
     conf.set(DATA_TO_DIR, otherArgs[1]);
-    String jobOutDir=otherArgs[2];
+    conf.set(BlackListManager.BLACK_LIST_FILE, blackListFile);
+    String jobOutDir = otherArgs[2];
 
     Job job = new Job(conf, "clearData");
     job.setJarByClass(MoveData.class);
@@ -99,7 +112,7 @@ public class MoveData {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job, new Path(dataFromDir));
-    FileOutputFormat.setOutputPath(job,new Path(jobOutDir));
+    FileOutputFormat.setOutputPath(job, new Path(jobOutDir));
     System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 }
